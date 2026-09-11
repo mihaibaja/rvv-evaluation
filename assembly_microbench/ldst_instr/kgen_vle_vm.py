@@ -128,20 +128,24 @@ def generate_block(lines, clobber, block_ops, blk, lanes, init, init_mem, check_
         print(blk.maskcode)
         if blk.maskcode == 1010:
             init.append(f"""
-    asm volatile ("vsetvli %0, %1, e{blk.typebits}, {blk.lmul}, {blk.tail}, {blk.mask}": "=r"(avl): "r"(lanes): "vl", "vtype");
-    printf("The active vector length of RVV is %d\\n", avl);
+    // Build the alternating predicate at the full e8 VLMAX.  On SG2044,
+    // using the smaller target-SEW lane count here can trap.
+    unsigned long mask_lanes = ((int)8*__riscv_vlenb()*{lmuls_to_int(blk.lmul)}/8);
+    asm volatile ("vsetvli %0, %1, e8, {blk.lmul}, {blk.tail}, {blk.mask}": "=r"(avl): "r"(mask_lanes));
     asm volatile ("vid.v      v1\\n\\t"
                   "vand.vi    v1, v1, 1 \\n\\t"
                   "vmseq.vi   v0, v1, 0 \\n\\t"
                   :
                   :
                   : "v0", "v1");
+    // A library call here may clobber vector state.  Change to the target SEW
+    // immediately after v0 has been populated.
+    asm volatile ("vsetvli %0, %1, e{blk.typebits}, {blk.lmul}, {blk.tail}, {blk.mask}": "=r"(avl): "r"(lanes));
         """)
         elif blk.maskcode > 16:
             init.append(f"""
-             asm volatile ("vsetvli %0, %1, e{blk.typebits}, {blk.lmul}, {blk.tail}, {blk.mask}": "=r"(avl): "r"(lanes): "vl", "vtype");
+             asm volatile ("vsetvli %0, %1, e{blk.typebits}, {blk.lmul}, {blk.tail}, {blk.mask}": "=r"(avl): "r"(lanes));
              long limit = {blk.maskcode};
-    //printf("The active vector length of RVV is %d\\n", avl);
     asm volatile (
     "vid.v       v1\\n\\t"
     "vmsltu.vx   v0, v1, %[limit]\\n\\t"
@@ -152,8 +156,7 @@ def generate_block(lines, clobber, block_ops, blk, lanes, init, init_mem, check_
         """)
         else:
             init.append(f"""
-             asm volatile ("vsetvli %0, %1, e{blk.typebits}, {blk.lmul}, {blk.tail}, {blk.mask}": "=r"(avl): "r"(lanes): "vl", "vtype");
-    printf("The active vector length of RVV is %d\\n", avl);
+             asm volatile ("vsetvli %0, %1, e{blk.typebits}, {blk.lmul}, {blk.tail}, {blk.mask}": "=r"(avl): "r"(lanes));
     asm volatile ("vid.v      v1\\n\\t"
                   "vmslt.vi   v0, v1, {blk.maskcode} \\n\\t"
                   :

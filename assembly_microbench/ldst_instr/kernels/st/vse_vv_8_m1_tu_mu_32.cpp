@@ -17,9 +17,8 @@ static int avl = 1;
 void init_mem()
 {
     
-             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes): "vl", "vtype");
+             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes));
              long limit = 32;
-    //printf("The active vector length of RVV is %d\n", avl);
     asm volatile (
     "vid.v       v1\n\t"
     "vmsltu.vx   v0, v1, %[limit]\n\t"
@@ -43,9 +42,8 @@ void init_mem()
 void kernel(unsigned long iters)
 {
     
-             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes): "vl", "vtype");
+             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes));
              long limit = 32;
-    //printf("The active vector length of RVV is %d\n", avl);
     asm volatile (
     "vid.v       v1\n\t"
     "vmsltu.vx   v0, v1, %[limit]\n\t"

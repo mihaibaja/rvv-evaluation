@@ -1,6 +1,6 @@
 
-#include <stdio.h>
 #include <riscv_vector.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,14 +17,19 @@ static int avl = 1;
 void init_mem()
 {
     
-    asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes): "vl", "vtype");
-    printf("The active vector length of RVV is %d\n", avl);
+    // Build the alternating predicate at the full e8 VLMAX.  On SG2044,
+    // using the smaller target-SEW lane count here can trap.
+    unsigned long mask_lanes = ((int)8*__riscv_vlenb()*1/8);
+    asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(mask_lanes));
     asm volatile ("vid.v      v1\n\t"
                   "vand.vi    v1, v1, 1 \n\t"
                   "vmseq.vi   v0, v1, 0 \n\t"
                   :
                   :
                   : "v0", "v1");
+    // A library call here may clobber vector state.  Change to the target SEW
+    // immediately after v0 has been populated.
+    asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes));
         
     
 
@@ -41,14 +46,19 @@ void init_mem()
 void kernel(unsigned long iters)
 {
     
-    asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes): "vl", "vtype");
-    printf("The active vector length of RVV is %d\n", avl);
+    // Build the alternating predicate at the full e8 VLMAX.  On SG2044,
+    // using the smaller target-SEW lane count here can trap.
+    unsigned long mask_lanes = ((int)8*__riscv_vlenb()*1/8);
+    asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(mask_lanes));
     asm volatile ("vid.v      v1\n\t"
                   "vand.vi    v1, v1, 1 \n\t"
                   "vmseq.vi   v0, v1, 0 \n\t"
                   :
                   :
                   : "v0", "v1");
+    // A library call here may clobber vector state.  Change to the target SEW
+    // immediately after v0 has been populated.
+    asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes));
         
 
     for (unsigned long i=0; i<iters; ++i) {

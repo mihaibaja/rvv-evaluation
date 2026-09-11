@@ -1,6 +1,6 @@
 
-#include <riscv_vector.h>
 #include <stdio.h>
+#include <riscv_vector.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,8 +17,7 @@ static int avl = 1;
 void init_mem()
 {
     
-             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes): "vl", "vtype");
-    printf("The active vector length of RVV is %d\n", avl);
+             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes));
     asm volatile ("vid.v      v1\n\t"
                   "vmslt.vi   v0, v1, 1 \n\t"
                   :
@@ -40,8 +39,7 @@ void init_mem()
 void kernel(unsigned long iters)
 {
     
-             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes): "vl", "vtype");
-    printf("The active vector length of RVV is %d\n", avl);
+             asm volatile ("vsetvli %0, %1, e8, m1, tu, mu": "=r"(avl): "r"(lanes));
     asm volatile ("vid.v      v1\n\t"
                   "vmslt.vi   v0, v1, 1 \n\t"
                   :
