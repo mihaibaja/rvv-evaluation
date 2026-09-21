@@ -27,7 +27,7 @@ The proxy benchmarks compare non-vectorized, auto-vectorized, and LMUL-controlle
 
 The application benchmarks contain larger end-to-end workloads evaluated or ported for RVV.
 
-- qsim_rvv: [`apps_bench/qsim_rvv/README.md`](apps_bench/qsim_rvv/README.md)
+- qsim_rvv: [`apps_bench/qsim_rvv/README.md`]([apps_bench/qsim_rvv/README.md](https://github.com/KTH-ScaLab/qsim_rvv/blob/50c200b6d5cd63754c95c42d71668513e546230b/README.md))
 
 ## Citation
 
