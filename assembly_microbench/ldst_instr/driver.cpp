@@ -14,7 +14,10 @@ int main(int argc, char ** argv)
 {
     using namespace std;
 
-    const uint64_t iters = 100000000ul;
+    // Igual que gather/reduction: permite fijar las iteraciones por argv[1]
+    // (perfilar 1e8 iteraciones bajo RAVE es inviable). Por defecto, sin cambios.
+    uint64_t iters = 100000000ul;
+    if (argc > 1) iters = strtoull(argv[1], nullptr, 10);
 
     const uint64_t iter_inst = unroll * block_inst;
     const uint64_t iter_ops = unroll * block_ops;
