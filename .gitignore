@@ -1,6 +1,12 @@
 # --- Productos de compilacion ----------------------------------------------
 build/
+build-*/
 */build/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
+.cache/
 *.x
 *.o
 *.a
@@ -10,6 +16,13 @@ build/
 *.exe
 *.log
 *.ll
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+*.dSYM/
+*.mod
+*.smod
 
 # --- Python ----------------------------------------------------------------
 __pycache__/
